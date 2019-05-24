@@ -11,9 +11,10 @@ class PeliculasProvider {
   String _apikey    = 'f0fa260de0bd3b429f7471eae8b99d6b';
   String _url       = 'api.themoviedb.org';
   String _language  = 'es-ES';
-
+ 
   // Implementando el patron Bloc para las películas populares.
-  int _popularesPage = 0;
+  int _popularesPage  = 0;
+  bool _cargando      = false;
 
   List<Pelicula> _populares = new List();
 
@@ -51,6 +52,9 @@ class PeliculasProvider {
 
   Future<List<Pelicula>> getPopulares() async {
 
+    if ( _cargando ) return [];
+
+    _cargando = true;
     _popularesPage++;
 
     final url = Uri.https(_url, '3/movie/popular', {
@@ -63,6 +67,8 @@ class PeliculasProvider {
 
     _populares.addAll(resp);
     popularesSink( _populares );
+
+    _cargando = false;
 
     return resp;
 
