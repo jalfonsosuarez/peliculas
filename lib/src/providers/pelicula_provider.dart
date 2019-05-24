@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -10,6 +11,21 @@ class PeliculasProvider {
   String _apikey    = 'f0fa260de0bd3b429f7471eae8b99d6b';
   String _url       = 'api.themoviedb.org';
   String _language  = 'es-ES';
+
+  // Implementando el patron Bloc para las películas populares.
+  int _popularesPage = 0;
+
+  List<Pelicula> _populares = new List();
+
+  final _popularesStreamController = StreamController<List<Pelicula>>.broadcast();
+
+  Function( List<Pelicula> ) get popularesSink => _popularesStreamController.sink.add;
+
+  Stream<List<Pelicula>> get popularesStream => _popularesStreamController.stream;
+
+  void disposeStreams() {
+    _popularesStreamController?.close();
+  }
 
   Future<List<Pelicula>> _procesarRespuesta( Uri url ) async {
 
@@ -33,14 +49,22 @@ class PeliculasProvider {
 
   }
 
-  Future<List<Pelicula>> getPopulares() {
+  Future<List<Pelicula>> getPopulares() async {
+
+    _popularesPage++;
 
     final url = Uri.https(_url, '3/movie/popular', {
       'api_key'   : _apikey,
-      'language'  : _language
+      'language'  : _language,
+      'page'      : _popularesPage.toString()
     });
 
-    return _procesarRespuesta(url);
+    final resp = await _procesarRespuesta(url);
+
+    _populares.addAll(resp);
+    popularesSink( _populares );
+
+    return resp;
 
   }
 
