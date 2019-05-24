@@ -82,6 +82,15 @@ class Pelicula {
     }
   }
 
+  getBackgroungImg() {
+
+    if ( posterPath == null ) {
+      return 'http://denrakaev.com/wp-content/uploads/2015/03/no-image.png';
+    } else {
+      return 'https://image.tmdb.org/t/p/w500/$backdropPath';
+    }
+  }
+
 }
 
 
